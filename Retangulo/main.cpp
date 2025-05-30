@@ -40,24 +40,74 @@ void Testes()
 					<< std::endl;
 
 	//Teste captura de dados de VÁRIAS linhas do banco
-	///*std::vector<std::vector<std::string>> linhas = db.executeQuery("SELECT * FROM [ATV_RETANGULO].[dbo].[Retangulo]");
-	//for (const auto& linha : linhas) {
-	//	for (const auto& valor : linha) {
-	//		std::cout << valor << " ";
-	//	}
-	//	std::cout << std::endl;
-	//}*/
+	int max = 5;
+
+	std::string query = 
+		"SELECT base, altura "
+		"FROM ( "
+		"  SELECT base, altura, ROW_NUMBER() OVER (ORDER BY id ASC) AS linha "
+		"  FROM Retangulo "
+		") AS t "
+		"WHERE linha <= " + std::to_string(max) + ";";
+
+	std::vector<int> valores = db.executeSelectQuery(query);
+
+	for (size_t i = 0; i < valores.size(); i += 2) 
+	{
+		int base = valores[i];
+		int altura = valores[i + 1];
+		Retangulo retangulo(base, altura);
+		std::cout << "Retangulo " << (i / 2) + 1 << ": Base = " << base 
+				  << ", Altura = " << altura << ", Area = " << retangulo.getArea() << std::endl;
+	}
+}
+
+void exibeRetangulos(const std::vector<Retangulo>& retangulos)
+{
+	std::cout << "Exibindo retangulos:" << std::endl;
+	int i = 0;
+	for (const auto& retangulo : retangulos)
+	{
+		std::cout << i << ": " <<"Base: " << retangulo.getBase() << ", Altura: " << retangulo.getAltura() 
+				  << ", Area: " << retangulo.getArea() << std::endl;
+	}
 }
 
 int main()
 {
-	Testes();
+	//Testes();
 	
 	Database db;
+	std::vector<Retangulo>retangulos;
 
 	db.connect(connectionString);
 
 	int linhas = db.executeCountQuery("SELECT COUNT(*) FROM [ATV_RETANGULO].[dbo].[Retangulo]");
+
+	for (int i = 0; i < linhas; i++)
+	{
+		std::string query =
+			"SELECT base, altura "
+			"FROM ( "
+			"  SELECT base, altura, ROW_NUMBER() OVER (ORDER BY id ASC) AS linha "
+			"  FROM Retangulo "
+			") AS t "
+			"WHERE linha = " + std::to_string(i + 1) + ";";
+
+		std::vector<int> valores = db.executeSelectQuery(query);
+
+		if (valores.size() == 2) 
+		{
+			Retangulo retangulo(valores[0], valores[1]);
+			retangulos.push_back(retangulo);
+		}
+		else 
+		{
+			std::cerr << "Erro ao obter dados do retangulo na linha " << i + 1 << std::endl;
+		}
+	}
+
+	exibeRetangulos(retangulos);
 
 	return 0;
 }

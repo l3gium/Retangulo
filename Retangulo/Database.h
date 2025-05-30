@@ -4,6 +4,7 @@
 #include <sql.h>
 #include <sqlext.h>
 #include <string>
+#include <vector>
 
 class Database
 {
@@ -14,7 +15,9 @@ class Database
 		bool connect(const std::string& connectionString);
 		void disconnect();
 		bool executeQuery(const std::string& sql);
-		double executeCountQuery(const std::string& sql);
+
+		int executeCountQuery(const std::string& sql);
+		std::vector<int> executeSelectQuery(const std::string& sql);
 
 	private:
 		SQLHENV hEnv;

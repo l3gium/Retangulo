@@ -1,5 +1,6 @@
 #include "Database.h"
 #include <iostream>
+#include <vector>
 
 Database::Database() : hEnv(SQL_NULL_HENV), hDbc(SQL_NULL_HDBC) {}
 
@@ -85,7 +86,7 @@ bool Database::executeQuery(const std::string& sql) {
 	return (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
 }
 
-double Database::executeCountQuery(const std::string& sql)
+int Database::executeCountQuery(const std::string& sql)
 {
 	SQLHSTMT hStmt;
 	SQLRETURN ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
@@ -108,3 +109,34 @@ double Database::executeCountQuery(const std::string& sql)
 
 	return count;
 }
+
+std::vector<int> Database::executeSelectQuery(const std::string& sql)
+{
+	SQLHSTMT hStmt;
+
+	SQLRETURN ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
+	if (ret != SQL_SUCCESS) return std::vector<int>();
+
+	ret = SQLExecDirectA(hStmt, (SQLCHAR*)sql.c_str(), SQL_NTS);
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) 
+	{
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return std::vector<int>();
+	}
+
+	std::vector<int> line;
+	
+	while (SQLFetch(hStmt) == SQL_SUCCESS)
+	{
+		int base = 0, altura = 0;
+		SQLGetData(hStmt, 1, SQL_C_LONG, &base, 0, NULL); 
+		SQLGetData(hStmt, 2, SQL_C_LONG, &altura, 0, NULL); 
+
+		line.push_back(base);
+		line.push_back(altura);
+	}
+
+	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	return line;
+}
+
