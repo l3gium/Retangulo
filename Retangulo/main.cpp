@@ -54,11 +54,9 @@ void Testes()
 
 	for (size_t i = 0; i < valores.size(); i += 2) 
 	{
-		int base = valores[i];
-		int altura = valores[i + 1];
-		Retangulo retangulo(base, altura);
-		std::cout << "Retangulo " << (i / 2) + 1 << ": Base = " << base 
-				  << ", Altura = " << altura << ", Area = " << retangulo.getArea() << std::endl;
+		Retangulo retangulo(valores[i], valores[i + 1]);
+		std::cout << "Retangulo " << (i / 2) + 1 << ": Base = " << retangulo.getBase() 
+				  << ", Altura = " << retangulo.getAltura() << ", Area = " << retangulo.getArea() << std::endl;
 	}
 }
 
@@ -75,9 +73,9 @@ void exibeRetangulos(const std::vector<Retangulo>& retangulos)
 
 int main()
 {
-	//Testes();
+	Testes();
 	
-	Database db;
+	/*Database db;
 	std::vector<Retangulo>retangulos;
 
 	db.connect(connectionString);
@@ -107,7 +105,7 @@ int main()
 		}
 	}
 
-	exibeRetangulos(retangulos);
+	exibeRetangulos(retangulos);*/
 
 	return 0;
 }
