@@ -14,6 +14,7 @@ class Database
 		bool connect(const std::string& connectionString);
 		void disconnect();
 		bool executeQuery(const std::string& sql);
+		double executeCountQuery(const std::string& sql);
 
 	private:
 		SQLHENV hEnv;

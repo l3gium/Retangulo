@@ -84,3 +84,27 @@ bool Database::executeQuery(const std::string& sql) {
 
 	return (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
 }
+
+double Database::executeCountQuery(const std::string& sql)
+{
+	SQLHSTMT hStmt;
+	SQLRETURN ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
+	if (ret != SQL_SUCCESS) return false;
+
+	ret = SQLExecDirectA(hStmt, (SQLCHAR*)sql.c_str(), SQL_NTS);
+
+	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO)
+	{
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		return false;
+	}
+
+	int count = -1;
+
+	if (SQLFetch(hStmt) == SQL_SUCCESS)
+		SQLGetData(hStmt, 1, SQL_C_LONG, &count, 0, NULL);
+	
+	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+	return count;
+}
